@@ -3,7 +3,7 @@
  * Plugin Name:       WPImage
  * Plugin URI:        https://ninjateam.org/wpimage
  * Description:       Image compression for WordPress — automatic optimization on every upload, next-gen WebP conversion, and bulk-optimize your whole media library.
- * Version:           2.8.23
+ * Version:           2.8.24
  * Requires at least: 6.0
  * Requires PHP:      7.2
  * Author:            NinjaTeam
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'WPIMAGE_VERSION', '2.8.23' );
+define( 'WPIMAGE_VERSION', '2.8.24' );
 define( 'WPIMAGE_FILE', __FILE__ );
 define( 'WPIMAGE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPIMAGE_URL', plugin_dir_url( __FILE__ ) );

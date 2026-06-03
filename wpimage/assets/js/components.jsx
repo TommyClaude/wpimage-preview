@@ -136,12 +136,14 @@ function TrendChart({ data, locked }) {
                 : hover >= n - 3 ? { right: 0 }               // near right edge → pin right
                 : { left: cxPct + '%' };                      // else centre on the bar
     const tx = (hover <= 2 || hover >= n - 3) ? '' : 'translateX(-50%) ';
-    tip = { ...horiz, top: topY, transform: tx + 'translateY(' + ty + ')' };
+    // Position the tooltip vertically as a % of the chart height so it tracks the
+    // bar top at any width (the SVG scales to fit, so px units would drift).
+    tip = { ...horiz, top: (topY / H * 100) + '%', transform: tx + 'translateY(' + ty + ')' };
   }
 
   return (
     <div style={{ position:'relative', userSelect: locked ? 'none' : 'auto' }} aria-hidden={locked ? 'true' : undefined}>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display:'block', overflow:'visible' }}
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display:'block', height:'auto', overflow:'visible' }}
         onMouseLeave={() => setHover(null)}>
         <line x1={0} x2={W} y1={baseY} y2={baseY} stroke="var(--gray-200)" strokeWidth="1" />
         {data.map((d, i) => {

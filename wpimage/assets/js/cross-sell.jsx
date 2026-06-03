@@ -68,7 +68,7 @@ function InstallBtn({ state, onInstall, id, now, big }) {
   if (state === 'activated')
     return <button className={'button' + sz} disabled style={{ color:'var(--fg-muted)' }}><Ic name="check" cls="xs" />Activated</button>;
   if (state === 'installing')
-    return <button className={'button' + sz + ' is-busy'} disabled>Installing…</button>;
+    return <button className={'button' + sz} disabled style={{ display:'inline-flex', alignItems:'center', gap:6, cursor:'default' }}><span className="components-spinner" style={{ width:14, height:14 }} />Installing…</button>;
   return <button className={'button' + sz} onClick={()=>onInstall(id)}><Ic name="cloud-download" cls="xs" />{now ? 'Install Now' : 'Install'}</button>;
 }
 

@@ -302,6 +302,12 @@ function DashboardPage({ t, synced, syncing, openLogin, onDisconnect }) {
 
         <div className="wpi-twocol" style={{ ...wpiPage.twoCol, alignItems:'stretch' }}>
           <SectionCard title="Optimizations" sub="Images processed over the last 30 days" icon="chart-bar"
+            action={synced ? (
+              <span style={{ display:'inline-flex', alignItems:'center', gap:6, flex:'none',
+                font:'var(--fw-medium) 12px/1 var(--font-sans)', color:'var(--fg-muted)' }}>
+                <span style={{ width:9, height:9, borderRadius:2, background:'var(--wp-admin-theme)' }} />Today
+              </span>
+            ) : null}
             style={{ display:'flex', flexDirection:'column', overflow:'hidden' }}
             bodyStyle={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'center' }}>
             {synced ? (
@@ -501,7 +507,7 @@ function PluginShell() {
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:18, fontWeight:600, letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8 }}>
               WPImage
-              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.16</span>
+              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.17</span>
             </div>
             <div style={{ font:'12px/1.4 var(--font-sans)', color:'var(--fg-muted)', marginTop:1 }}>Image compression for WordPress</div>
           </div>

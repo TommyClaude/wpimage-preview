@@ -178,7 +178,8 @@ function TrendChart({ data, locked }) {
           {act.saved != null && (
             <div style={{ marginTop:2 }}>
               <strong style={{ fontWeight:600 }}>{act.saved}</strong> saved
-              {act.pct != null && <span style={{ opacity:.6 }}>{' · '}{act.pct}% smaller</span>}
+              {act.pct != null && <span style={{ opacity:.6 }}>{' · '}</span>}
+              {act.pct != null && <span style={{ color:'#4ade80', fontWeight:600 }}>−{act.pct}%</span>}
             </div>
           )}
         </div>

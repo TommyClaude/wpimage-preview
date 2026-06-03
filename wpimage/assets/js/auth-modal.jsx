@@ -38,7 +38,6 @@ function LoginModal({ open, mode = 'login', markVariant = 'blue', onClose, onLog
   const Ic = window.Ic;
   const WPImageMark = window.WPImageMark;
   const [view, setView] = React.useState(mode);
-  const [remember, setRemember] = React.useState(true);
   React.useEffect(() => { if (open) setView(mode); }, [open, mode]);
   React.useEffect(() => {
     if (!open) return;
@@ -95,9 +94,8 @@ function LoginModal({ open, mode = 'login', markVariant = 'blue', onClose, onLog
               <input id="wpi-auth-pass" type="password" className="components-text-control__input" defaultValue="optimize" />
             </div>
             {!isSignup && (
-              <div className="wpi-auth-row">
-                <AuthCheckbox checked={remember} onChange={setRemember}>Remember me</AuthCheckbox>
-                <a href="#" onClick={(e) => e.preventDefault()}>Forgot password?</a>
+              <div style={{ textAlign:'right' }}>
+                <a href="#" onClick={(e) => e.preventDefault()} style={{ font:'13px/1 var(--font-sans)', color:'var(--wp-admin-theme)', textDecoration:'none' }}>Forgot password?</a>
               </div>
             )}
             <button type="submit" className="button button-primary wpi-auth-submit">{copy.submit}</button>

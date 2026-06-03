@@ -268,6 +268,10 @@ function DashboardPage({ t, synced, syncing, openLogin, onDisconnect }) {
   const trendNow = new Date();
   const trendTicks = new Set([0, 7, 14, 21, 29]);
   let trendTickMon = -1;
+  // Per-day savings, derived deterministically from the day's image count so the
+  // tooltip is stable across renders. ~305 KB saved/image (matches the StatCard
+  // "avg 305 KB / image"); compression ratio varies ~56–77% per day.
+  const fmtSaved = (kb) => kb >= 1024 ? (kb / 1024).toFixed(kb >= 10240 ? 0 : 1) + ' MB' : Math.round(kb) + ' KB';
   const trend = trendVals.map((v, i) => {
     const d = new Date(trendNow);
     d.setDate(trendNow.getDate() - (29 - i));
@@ -276,7 +280,11 @@ function DashboardPage({ t, synced, syncing, openLogin, onDisconnect }) {
       label = d.getMonth() !== trendTickMon ? WPI_MON[d.getMonth()] + ' ' + d.getDate() : String(d.getDate());
       trendTickMon = d.getMonth();
     }
-    return { v, label, date: WPI_MON[d.getMonth()] + ' ' + d.getDate(), today: i === trendVals.length - 1 };
+    const perImageKB = 290 + ((i * 37) % 70);          // 290–359 KB saved per image
+    const savedKB = v * perImageKB;
+    const pct = 56 + ((i * 29) % 22);                  // 56–77% smaller
+    return { v, label, date: WPI_MON[d.getMonth()] + ' ' + d.getDate(), today: i === trendVals.length - 1,
+      saved: fmtSaved(savedKB), pct };
   });
   const trendTotal = trendVals.reduce((a, b) => a + b, 0);
   const quotaTotal = 200, quotaUsed = trendTotal, resetDate = 'Jun 14';
@@ -515,7 +523,7 @@ function PluginShell() {
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:18, fontWeight:600, letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8 }}>
               WPImage
-              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.22</span>
+              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.23</span>
             </div>
             <div style={{ font:'12px/1.4 var(--font-sans)', color:'var(--fg-muted)', marginTop:1 }}>Image compression for WordPress</div>
           </div>

@@ -113,7 +113,8 @@ function QuotaBar({ used, total }) {
 
 /* ---------------- Trend chart (optimizations over time) ---------------- */
 // Single baseline only (no floating gridlines — they carried no value labels).
-// Hover / tap a column to reveal a tooltip with that day's image count.
+// Hover / tap a column to reveal a tooltip with that day's image count plus the
+// space saved and compression ratio for the day.
 function TrendChart({ data, locked }) {
   const [hover, setHover] = React.useState(null);
   const W = 560, H = 132, pad = { l:0, r:0, t:10, b:18 };
@@ -166,10 +167,18 @@ function TrendChart({ data, locked }) {
       </svg>
       {tip && (
         <div style={{ position:'absolute', ...tip, background:'var(--gray-900)', color:'#fff',
-          font:'var(--fw-medium) 12px/1.35 var(--font-sans)', padding:'5px 9px', borderRadius:5,
+          font:'var(--fw-medium) 12px/1.35 var(--font-sans)', padding:'6px 9px', borderRadius:5,
           whiteSpace:'nowrap', boxShadow:'var(--elevation-medium)', pointerEvents:'none', zIndex:20 }}>
-          <span style={{ opacity:.6 }}>{act.today ? 'Today' : act.date}{' · '}</span>
-          <strong style={{ fontWeight:600 }}>{act.v.toLocaleString()}</strong> {act.v === 1 ? 'image' : 'images'}
+          <div>
+            <span style={{ opacity:.6 }}>{act.today ? 'Today' : act.date}{' · '}</span>
+            <strong style={{ fontWeight:600 }}>{act.v.toLocaleString()}</strong> {act.v === 1 ? 'image' : 'images'}
+          </div>
+          {act.saved != null && (
+            <div style={{ marginTop:2 }}>
+              <strong style={{ fontWeight:600 }}>{act.saved}</strong> saved
+              {act.pct != null && <span style={{ opacity:.6 }}>{' · '}{act.pct}% smaller</span>}
+            </div>
+          )}
         </div>
       )}
     </div>

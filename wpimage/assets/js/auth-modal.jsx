@@ -81,17 +81,17 @@ function LoginModal({ open, mode = 'login', markVariant = 'blue', onClose, onLog
             {isSignup && (
               <div className="components-base-control">
                 <label className="components-base-control__label" htmlFor="wpi-auth-name">Full name</label>
-                <input id="wpi-auth-name" type="text" className="components-text-control__input" defaultValue="Jordan Miles" />
+                <input id="wpi-auth-name" type="text" className="components-text-control__input" placeholder="Your full name" />
               </div>
             )}
             <div className="components-base-control">
               <label className="components-base-control__label" htmlFor="wpi-auth-email">Email</label>
               <input id="wpi-auth-email" type="email" className="components-text-control__input"
-                placeholder="you@yoursite.com" defaultValue="you@yoursite.com" />
+                placeholder="you@yoursite.com" />
             </div>
             <div className="components-base-control">
               <label className="components-base-control__label" htmlFor="wpi-auth-pass">Password</label>
-              <input id="wpi-auth-pass" type="password" className="components-text-control__input" defaultValue="optimize" />
+              <input id="wpi-auth-pass" type="password" className="components-text-control__input" placeholder="••••••••" />
             </div>
             {!isSignup && (
               <div style={{ textAlign:'right' }}>

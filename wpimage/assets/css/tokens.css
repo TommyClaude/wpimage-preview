@@ -1,0 +1,111 @@
+/* ============================================================
+   WPImage — Design tokens (from the NinjaTeam / WordPress system)
+   CSS custom properties + type helpers. No component styles here:
+   buttons, form controls, cards, etc. come from WordPress core.
+   ============================================================ */
+
+:root {
+  /* ---------- WordPress neutrals (black & white) ---------- */
+  --wp-white: #ffffff;
+  --wp-black: #000000;
+
+  /* ---------- WordPress gray scale ---------- */
+  --gray-100: #f0f0f0;
+  --gray-200: #e0e0e0;
+  --gray-300: #dddddd;
+  --gray-400: #cccccc;
+  --gray-500: #aeaeae;
+  --gray-600: #949494;
+  --gray-700: #757575;
+  --gray-800: #2f2f2f;
+  --gray-900: #1e1e1e;
+
+  /* ---------- WordPress admin theme (accent) ---------- */
+  --wp-admin-theme:            #3858e9;
+  --wp-admin-theme-darker-10:  #2145e6;
+  --wp-admin-theme-darker-20:  #183ad6;
+
+  /* ---------- WordPress semantic alerts ---------- */
+  --alert-red:    #cc1818;
+  --alert-yellow: #f0b849;
+  --alert-green:  #4ab866;
+  --synced-purple:#7a00df;
+
+  /* ---------- WordPress UI surface mapping ---------- */
+  --wp-admin-bg:        #f0f0f1;
+  --surface:            #ffffff;
+  --surface-subtle:     #fcfcfc;
+  --surface-muted:      #f6f7f7;
+  --border:             #e0e0e0;
+  --border-strong:      #949494;
+  --fg:                 #1e1e1e;
+  --fg-muted:           #757575;
+  --fg-disabled:        #949494;
+  --focus-ring:         #3858e9;
+
+  /* ---------- NinjaTeam brand ---------- */
+  --nt-flame:   #fc794c;
+  --nt-red:     #fa513c;
+  --nt-deep:    #e2293b;
+  --nt-brand:   #f0413e;
+  --nt-slate:   #5e6577;
+  --nt-gradient: linear-gradient(135deg, #fc794c 0%, #f5494a 48%, #e2293b 100%);
+
+  /* ---------- Type families ---------- */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  --font-mono: Menlo, Consolas, Monaco, monospace;
+
+  /* ---------- Primitive type sizes ---------- */
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-15: 15px;
+  --fs-20: 20px;
+  --fs-32: 32px;
+
+  /* ---------- Line heights ---------- */
+  --lh-16: 16px;
+  --lh-20: 20px;
+  --lh-24: 24px;
+  --lh-28: 28px;
+  --lh-32: 32px;
+  --lh-40: 40px;
+
+  /* ---------- Weights ---------- */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold:600;
+
+  /* ---------- Spacing (4px baseline) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 56px;
+
+  /* ---------- Radius ---------- */
+  --radius-xs:    1px;
+  --radius-sm:    2px;
+  --radius-md:    4px;
+  --radius-lg:    8px;
+  --radius-round: 9999px;
+  --radius-full:  100%;
+
+  /* ---------- Elevation ---------- */
+  --elevation-x-small: 0px 1px 1px rgba(0,0,0,0.03), 0px 1px 2px rgba(0,0,0,0.02),
+                       0px 3px 3px rgba(0,0,0,0.02), 0px 4px 4px rgba(0,0,0,0.01);
+  --elevation-small:   0px 1px 2px rgba(0,0,0,0.04), 0px 3px 3px rgba(0,0,0,0.03),
+                       0px 6px 4px rgba(0,0,0,0.02), 0px 11px 5px rgba(0,0,0,0.01);
+  --elevation-medium:  0px 2px 3px rgba(0,0,0,0.05), 0px 6px 6px rgba(0,0,0,0.04),
+                       0px 13px 8px rgba(0,0,0,0.02), 0px 24px 10px rgba(0,0,0,0.01);
+  --elevation-large:   0px 4px 6px rgba(0,0,0,0.06), 0px 14px 12px rgba(0,0,0,0.05),
+                       0px 32px 18px rgba(0,0,0,0.03), 0px 56px 22px rgba(0,0,0,0.01);
+}
+
+/* ---------- Semantic type helpers (used by the app) ---------- */
+.wpimage-app .t-mono { font: var(--fw-regular) var(--fs-13)/var(--lh-20) var(--font-mono); color: var(--fg); }

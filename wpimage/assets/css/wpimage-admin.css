@@ -1,0 +1,499 @@
+/* ============================================================
+   WPImage — admin component layer (scoped to .wpimage-app)
+
+   This file intentionally does NOT restyle buttons, text inputs,
+   checkboxes, radios, selects or the admin shell — WordPress core
+   already provides those. It ships only the WPImage-specific UI:
+   cards, settings panels, badges, the toggle, segmented control,
+   stat cards, trend chart, tabs, the dropdown menu, snackbar, the
+   brand hero, icons, and a few wp-admin integration tweaks.
+   ============================================================ */
+
+/* ---------- wp-admin integration ---------- */
+.wpimage-wrap { margin: 0; max-width: none; }
+body.toplevel_page_wpimage #wpcontent { padding-left: 0; }
+body.toplevel_page_wpimage #wpbody-content { padding-bottom: 0; }
+.wpimage-app { font-family: var(--font-sans); color: var(--fg); background: var(--wp-admin-bg); min-height: calc(100vh - 32px); }
+.wpimage-app *, .wpimage-app *::before, .wpimage-app *::after { box-sizing: border-box; }
+.wpimage-app a { box-shadow: none; }
+.wpimage-loading { display: flex; align-items: center; gap: 8px; padding: 48px 32px; color: var(--fg-muted); font: 13px/1.4 var(--font-sans); }
+
+/* ---------- Loading skeleton (shown before the React app mounts) ----------
+   Pure HTML/CSS (no JS) so it paints immediately on page load / reload and
+   mirrors the real layout — header (logo + title + buttons + tabs) AND the
+   dashboard body (hero + stat cards + panels) — so nothing shifts when React
+   mounts. app.jsx clears #wpimage-root (innerHTML='') when React mounts. */
+.wpi-sk { position: relative; overflow: hidden; display: block; background: var(--gray-200); border-radius: var(--radius-sm); }
+.wpi-sk::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  animation: wpiShimmer 1.4s ease-in-out infinite;
+}
+@keyframes wpiShimmer { 100% { transform: translateX(100%); } }
+
+/* Header bar (full-width white, matches .wpi-pageheader) */
+.wpi-sk-header { background: #fff; border-bottom: 1px solid var(--border); padding: 20px 32px 0; }
+.wpi-sk-headrow { display: flex; align-items: center; gap: 14px; max-width: 1080px; margin: 0 auto 16px; }
+.wpi-sk-headrow .sk-logo { width: 36px; height: 36px; flex: none; border-radius: var(--radius-md); }
+.wpi-sk-headrow .sk-titles { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.wpi-sk-headrow .sk-title { width: 150px; height: 20px; }
+.wpi-sk-headrow .sk-subtitle { width: 220px; height: 12px; }
+.wpi-sk-headrow .sk-btns { display: flex; gap: 8px; flex: none; }
+.wpi-sk-headrow .sk-btn { width: 118px; height: 30px; border-radius: var(--radius-sm); }
+.wpi-sk-tabs { display: flex; gap: 28px; max-width: 1080px; margin: 0 auto; padding-top: 14px; }
+.wpi-sk-tabs .sk-tab { width: 88px; height: 16px; margin-bottom: 14px; }
+
+/* Body (capped + centered, matches .wpi-page) */
+.wpi-sk-body { max-width: 1080px; margin: 0 auto; padding: 28px 32px 64px; }
+/* Hero: a simple plain block (no inner detail) at the real banner's height */
+.wpi-sk-hero {
+  min-height: 340px; margin-bottom: 24px; border-radius: 16px;
+  background: linear-gradient(135deg, #e7e8ec, #dcdee3);
+}
+
+.wpi-sk-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.wpi-sk-stat { display: flex; flex-direction: column; gap: 12px; padding: 20px;
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.wpi-sk-stat .sk-ico { width: 40px; height: 40px; border-radius: var(--radius-md); }
+.wpi-sk-stat .sk-num { width: 58%; height: 26px; }
+.wpi-sk-stat .sk-sub { width: 40%; height: 12px; }
+
+/* Bottom two cards: same column ratio + height as the real .wpi-twocol, stretched equal */
+.wpi-sk-cols { display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; align-items: stretch; }
+.wpi-sk-panel { display: flex; flex-direction: column; gap: 16px; padding: 24px; min-height: 268px;
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.wpi-sk-panel .sk-h { width: 42%; height: 18px; }
+.wpi-sk-panel .sk-fill { flex: 1; width: 100%; background: var(--gray-100); border-radius: var(--radius-sm); }
+
+@media (max-width: 960px) {
+  .wpi-sk-stats { grid-template-columns: repeat(2, 1fr); }
+  .wpi-sk-cols { grid-template-columns: 1fr; }
+}
+/* Tablet band: real hero text wraps and grows taller than its 340 min-height */
+@media (max-width: 960px) and (min-width: 783px) {
+  /* Real hero text wraps and grows taller than 340 in this band */
+  .wpi-sk-hero { min-height: 460px; }
+  .wpi-sk-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 782px) {
+  .wpi-sk-header { padding: 16px 16px 0; }
+  .wpi-sk-body { padding: 20px 16px 56px; }
+  .wpi-sk-headrow .sk-btns { display: none; }
+  .wpi-sk-tabs { overflow: hidden; }
+  .wpi-sk-hero { min-height: 300px; }
+  .wpi-sk-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) { .wpi-sk-stats { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .wpi-sk::after { animation: none; } }
+
+/* Number input: hide spinners for a cleaner look */
+.wpimage-app input[type=number]::-webkit-outer-spin-button,
+.wpimage-app input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* ---------- WordPress core buttons: align our inline icons ---------- */
+.wpimage-app .button,
+.wpimage-app .button-primary,
+.wpimage-app .button-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  vertical-align: middle;
+}
+.wpimage-app .button .nt-ic { width: 18px; height: 18px; }
+.wpimage-app .button.button-small .nt-ic { width: 15px; height: 15px; }
+.wpimage-app .button.is-active { border-color: var(--wp-admin-theme); color: var(--wp-admin-theme); box-shadow: 0 0 0 1px var(--wp-admin-theme); }
+.wpimage-app .button-link { display: inline-flex; align-items: center; gap: 4px; }
+.wpimage-app .small-text { text-align: right; }
+
+/* ---------- Header utility buttons (Submit your idea = minimal, Support = outline) ---------- */
+/* Both share the same box so the two read as an equal pair, regardless of their
+   underlying core variant (tertiary vs button-small). Selectors are written with
+   enough specificity to beat the base .components-button.is-tertiary height. */
+.wpimage-app .wpi-brand-more { position: relative; flex: none; }
+.wpimage-app .wpi-brand-actions { display: flex; align-items: center; gap: 8px; }
+.wpimage-app .wpi-head-btn,
+.wpimage-app a.wpi-head-btn.components-button.is-tertiary,
+.wpimage-app .wpi-head-btn.button.button-small {
+  min-height: 30px; height: 30px; padding: 0 10px; gap: 5px;
+  font-size: 12px; line-height: 1; flex: none; text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+.wpimage-app a.wpi-head-btn.components-button.is-tertiary { color: var(--wp-admin-theme); }
+.wpimage-app a.wpi-head-btn.components-button.is-tertiary:hover { background: rgba(56,88,233,.06); color: var(--wp-admin-theme-darker-10); }
+.wpimage-app .wpi-head-btn .nt-ic { width: 15px !important; height: 15px !important; }
+/* Kebab (3-dot) trigger — hidden on desktop, shown on mobile */
+.wpimage-app .wpi-head-kebab {
+  display: none; align-items: center; justify-content: center; width: 36px; height: 36px;
+  padding: 0; border: none; background: none; cursor: pointer; color: var(--fg-muted);
+  border-radius: var(--radius-sm); transition: background .1s, color .1s;
+}
+.wpimage-app .wpi-head-kebab:hover { background: var(--gray-100); color: var(--fg); }
+.wpimage-app .wpi-head-kebab .nt-ic { width: 20px; height: 20px; }
+
+/* ---------- Recolor native WP buttons to the WPImage / design-system palette ----------
+   We keep the native .button / .button-primary / .button-link markup (no custom
+   button component), and only override the color tokens so the buttons match the
+   design system's theme blue (#3858e9) instead of the default WP admin blue. */
+.wpimage-app .button,
+.wpimage-app .button-secondary {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 36px; padding: 0 12px; line-height: 1;
+  border-radius: var(--radius-sm);
+  border-color: var(--wp-admin-theme);
+  color: var(--wp-admin-theme);
+  background: #fff;
+}
+.wpimage-app .button:hover,
+.wpimage-app .button-secondary:hover {
+  border-color: var(--wp-admin-theme-darker-10);
+  color: var(--wp-admin-theme-darker-10);
+  background: rgba(56,88,233,.04);
+}
+.wpimage-app .button:focus {
+  border-color: var(--wp-admin-theme);
+  box-shadow: 0 0 0 1px var(--wp-admin-theme);
+  outline: 2px solid transparent;
+}
+.wpimage-app .button-primary {
+  border-radius: var(--radius-sm);
+  background: var(--wp-admin-theme);
+  border-color: var(--wp-admin-theme);
+  color: #fff;
+}
+.wpimage-app .button-primary:hover,
+.wpimage-app .button-primary:focus {
+  background: var(--wp-admin-theme-darker-10);
+  border-color: var(--wp-admin-theme-darker-10);
+  color: #fff;
+}
+.wpimage-app .button-primary:active { background: var(--wp-admin-theme-darker-20); border-color: var(--wp-admin-theme-darker-20); }
+.wpimage-app .button-link { color: var(--wp-admin-theme); }
+.wpimage-app .button-link:hover, .wpimage-app .button-link:focus { color: var(--wp-admin-theme-darker-20); }
+.wpimage-app .button:disabled:not(.is-busy),
+.wpimage-app .button[disabled]:not(.is-busy),
+.wpimage-app .button[aria-disabled="true"]:not(.is-busy) { color: var(--fg-disabled) !important; border-color: var(--gray-300) !important; background: var(--surface-muted) !important; cursor: default; }
+.wpimage-app .button.is-busy { cursor: default; }
+
+/* ---------- Tertiary / "Minimal" button (WordPress core Button is-tertiary) ----------
+   Borderless, theme-blue text, no underline, faint blue hover fill. Matches the
+   @wordpress/components Button `tertiary` variant (used for the Reset action). */
+.wpimage-app .components-button.is-tertiary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  box-sizing: border-box; min-height: 36px; padding: 0 12px;
+  border: none; border-radius: var(--radius-sm); background: transparent;
+  font: var(--fw-regular) 13px/1 var(--font-sans); color: var(--wp-admin-theme);
+  cursor: pointer; text-decoration: none;
+}
+.wpimage-app .components-button.is-tertiary:hover { background: rgba(56,88,233,.04); color: var(--wp-admin-theme-darker-10); }
+.wpimage-app .components-button.is-tertiary.is-small { min-height: 24px; padding: 0 8px; gap: 4px; font-size: 11px; }
+.wpimage-app .components-button.is-tertiary.is-small .nt-ic { width: 16px; height: 16px; }
+.wpimage-app .components-button.is-tertiary:focus { outline: none; box-shadow: 0 0 0 1.5px var(--wp-admin-theme); }
+.wpimage-app .components-button.is-tertiary:disabled { color: var(--fg-disabled); background: transparent; cursor: default; }
+
+/* ---------- Busy state (WordPress core Button isBusy) ----------
+   Animated diagonal stripe shown while an action is processing. Overrides the
+   disabled background (which is !important) so it shows even when disabled. */
+@keyframes wpimage-busy { 0% { background-position: 200px 0; } 100% { background-position: 0 0; } }
+.wpimage-app .button.is-busy,
+.wpimage-app .button.is-busy:disabled,
+.wpimage-app .button.is-busy[disabled],
+.wpimage-app .button-primary.is-busy,
+.wpimage-app .button-primary.is-busy:disabled,
+.wpimage-app .button-primary.is-busy[disabled] {
+  animation: wpimage-busy 2500ms infinite linear;
+  background-size: 100px 100% !important;
+  opacity: 1;
+}
+.wpimage-app .button.is-busy,
+.wpimage-app .button.is-busy:disabled,
+.wpimage-app .button.is-busy[disabled] {
+  color: var(--wp-admin-theme) !important;
+  border-color: var(--border-strong) !important;
+  background-image: linear-gradient(-45deg, var(--gray-100) 28%, #fff 28%, #fff 72%, var(--gray-100) 72%) !important;
+}
+.wpimage-app .button-primary.is-busy,
+.wpimage-app .button-primary.is-busy:disabled,
+.wpimage-app .button-primary.is-busy[disabled] {
+  color: #fff !important;
+  border-color: var(--wp-admin-theme) !important;
+  background-image: linear-gradient(-45deg, var(--wp-admin-theme) 28%, var(--wp-admin-theme-darker-20) 28%, var(--wp-admin-theme-darker-20) 72%, var(--wp-admin-theme) 72%) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wpimage-app .button.is-busy, .wpimage-app .button-primary.is-busy { animation: none; }
+}
+
+/* ---------- Icons (WordPress @wordpress/icons set, inline SVG) ---------- */
+.wpimage-app .nt-ic { display: inline-flex; width: 24px; height: 24px; flex: none; line-height: 0; color: inherit; }
+.wpimage-app .nt-ic > svg { width: 100%; height: 100%; display: block; }
+.wpimage-app .nt-ic.sm { width: 20px; height: 20px; }
+.wpimage-app .nt-ic.xs { width: 16px; height: 16px; }
+
+/* ---------- Card (WordPress core Card — .components-card) ---------- */
+.wpimage-app .components-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elevation-x-small); overflow: hidden; }
+.wpimage-app .components-card__header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.wpimage-app .components-card__header h3 { margin: 0; font: var(--fw-semibold) 15px/1.4 var(--font-sans); }
+
+/* ---------- Panel (settings rows) ---------- */
+.wpimage-app .wp-panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.wpimage-app .wp-panel-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.wpimage-app .wp-panel-row:last-child { border-bottom: none; }
+.wpimage-app .wp-panel-row .meta { display: flex; flex-direction: column; gap: 2px; }
+.wpimage-app .wp-panel-row .meta .ttl { font: var(--fw-medium) 13px/1.4 var(--font-sans); color: var(--fg); }
+.wpimage-app .wp-panel-row .meta .sub { font: 12px/1.4 var(--font-sans); color: var(--fg-muted); }
+
+/* ---------- Small uppercase label ---------- */
+.wpimage-app .wp-label { font: var(--fw-medium) 11px/1.4 var(--font-sans); text-transform: uppercase; letter-spacing: .02em; color: var(--fg); }
+
+/* ---------- Badge (WordPress core @wordpress/components Badge) ----------
+   Genuine `components-badge` markup with intent modifiers. Values match the
+   Gutenberg Badge: a small, solid subtle-tint pill · 2px radius. */
+.wpimage-app .components-badge {
+  display: inline-flex; align-items: center; gap: 4px; box-sizing: border-box;
+  height: 24px; padding: 0 8px; border-radius: 2px;
+  font: var(--fw-medium) 12px/1 var(--font-sans);
+}
+.wpimage-app .components-badge .nt-ic { width: 14px; height: 14px; margin-left: -1px; }
+.wpimage-app .components-badge.is-default { background: var(--gray-100); color: var(--gray-800); }
+.wpimage-app .components-badge.is-info    { background: #e9edfb; color: var(--wp-admin-theme-darker-20); }
+.wpimage-app .components-badge.is-success { background: #e5f4ea; color: #1a7a3e; }
+.wpimage-app .components-badge.is-warning { background: #fbf3e2; color: #946200; }
+.wpimage-app .components-badge.is-error   { background: #fbeaea; color: var(--alert-red); }
+
+/* ---------- Toggle ---------- */
+/* The toggle uses the genuine WordPress core FormToggle component
+   (.components-form-toggle), styled by the `wp-components` stylesheet that
+   WordPress ships and we enqueue. We add only the WP 7 core focus ring, which
+   some bundled wp-components builds omit: a white gap + theme outline around the
+   track whenever the underlying checkbox is focused (click or keyboard). */
+.wpimage-app .components-form-toggle__input:focus + .components-form-toggle__track {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--wp-admin-theme);
+  outline: 2px solid transparent; /* high-contrast-mode fallback */
+}
+
+/* ---------- ToggleGroupControl (segmented — WordPress core) ----------
+   Genuine `components-toggle-group-control` markup. Core look: a bordered
+   white track; the selected option is a dark (#1e1e1e) backdrop with white
+   text. Matches @wordpress/components ToggleGroupControl. */
+.wpimage-app .components-toggle-group-control {
+  display: inline-flex; box-sizing: border-box; min-height: 36px; padding: 3px;
+  background: #fff; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+}
+.wpimage-app .components-toggle-group-control-option {
+  appearance: none; border: none; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 28px; padding: 0 14px; border-radius: 1px;
+  font: var(--fw-regular) 13px/1 var(--font-sans); color: var(--fg);
+  transition: background-color .1s ease, color .1s ease;
+}
+.wpimage-app .components-toggle-group-control-option:hover { background: var(--gray-100); }
+.wpimage-app .components-toggle-group-control-option.is-selected { background: var(--gray-900); color: #fff; }
+.wpimage-app .components-toggle-group-control-option.is-selected:hover { background: var(--gray-900); }
+
+/* ---------- CheckboxControl (WordPress core) ----------
+   Genuine `components-checkbox-control` markup: a real (visually-hidden)
+   <input type=checkbox> for semantics + a visible box span whose checked
+   state is driven by the control's `is-checked` class (mirrors how the core
+   CheckboxControl overlays its check icon). */
+.wpimage-app .components-checkbox-control { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: 13px/1.43 var(--font-sans); color: var(--fg); position: relative; }
+.wpimage-app .components-checkbox-control__input {
+  position: absolute; left: 0; top: 0; width: 16px; height: 16px; margin: 0; opacity: 0; pointer-events: none;
+}
+.wpimage-app .components-checkbox-control__box {
+  flex: none; width: 16px; height: 16px; box-sizing: border-box; background: #fff;
+  border: 1px solid var(--gray-700); border-radius: 2px; position: relative;
+  transition: background-color .1s, border-color .1s;
+}
+.wpimage-app .components-checkbox-control.is-checked .components-checkbox-control__box { background: var(--wp-admin-theme); border-color: var(--wp-admin-theme); }
+.wpimage-app .components-checkbox-control.is-checked .components-checkbox-control__box::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 1.6px 1.6px 0; transform: translate(-50%, -58%) rotate(45deg);
+}
+
+/* ---------- "Fake select" trigger button (custom multi-select dropdown) ---------- */
+.wpimage-app .wp-select { height: 36px; padding: 0 8px; box-sizing: border-box; font: 13px/1 var(--font-sans); color: var(--fg); background: #fff; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); transition: box-shadow .1s, border-color .1s; width: 100%; appearance: none; padding-right: 28px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg transform='translate(6.5 9.2)'%3E%3Cpath d='M 11 1.2 L 5.5 5.6 L 0 1.2 L 0.9 0 L 5.5 3.6 L 10 0 L 11 1.2 Z' fill='%23757575'/%3E%3C/g%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; background-size: 18px; cursor: pointer; }
+.wpimage-app .wp-select:focus { outline: none; border-color: var(--wp-admin-theme); box-shadow: 0 0 0 1px var(--wp-admin-theme); }
+
+/* ---------- Dropdown menu (renamed to .wpi-menu to avoid wp-admin clashes) ---------- */
+.wpimage-app .wpi-menu { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--elevation-medium); padding: 4px; min-width: 200px; }
+
+/* ---------- Spinner (WordPress core — .components-spinner) ---------- */
+.wpimage-app .components-spinner { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid rgba(56,88,233,.25); border-top-color: var(--wp-admin-theme); animation: wpimage-spin .9s linear infinite; flex: none; }
+@keyframes wpimage-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Tabs (WordPress core TabPanel — .components-tab-panel__tabs) ---------- */
+.wpimage-app .components-tab-panel__tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+.wpimage-app .components-tab-panel__tabs-item { padding: 12px 16px; font: var(--fw-medium) 13px/1 var(--font-sans); color: var(--fg-muted); cursor: pointer; border-bottom: 1.5px solid transparent; margin-bottom: -1px; background: none; border-left: none; border-right: none; border-top: none; }
+.wpimage-app .components-tab-panel__tabs-item:hover { color: var(--fg); }
+.wpimage-app .components-tab-panel__tabs-item.active { color: var(--wp-admin-theme); border-bottom-color: var(--wp-admin-theme); box-shadow: none; }
+
+/* ---------- Snackbar (WordPress core — .components-snackbar) ---------- */
+.wpimage-app .components-snackbar { display: inline-flex; align-items: center; gap: 10px; background: var(--gray-900); color: #fff; font: 13px/1.4 var(--font-sans); padding: 12px 16px; border-radius: var(--radius-sm); box-shadow: var(--elevation-medium); }
+.wpimage-app .components-snackbar a { color: #fff; text-decoration: underline; font-weight: 600; }
+.wpimage-app .wpi-toast-wrap { position: fixed; bottom: 28px; left: 160px; right: 0; z-index: 100000; display: flex; justify-content: center; pointer-events: none; }
+.wpimage-app .wpi-toast-wrap .components-snackbar { pointer-events: auto; }
+.wpimage-app .wpi-toast-in  { animation: wpiToastIn 0.26s cubic-bezier(.2,.8,.3,1) both; }
+.wpimage-app .wpi-toast-out { animation: wpiToastOut 0.22s ease-in both; }
+@keyframes wpiToastIn { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes wpiToastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wpimage-app .wpi-toast-in, .wpimage-app .wpi-toast-out { animation: none; }
+}
+
+/* On the folded / responsive admin menu, keep the toast clear of the rail. */
+@media screen and (max-width: 960px) { .wpimage-app .wpi-toast-wrap { left: 36px; } }
+@media screen and (max-width: 782px) { .wpimage-app .wpi-toast-wrap { left: 0; } }
+
+/* ---------- Modal (WordPress core — .components-modal__*) ----------
+   Genuine Modal markup: screen overlay (scrim) + frame + content + icon button.
+   In production these are styled by the enqueued `wp-components` stylesheet;
+   reproduced here (scoped) so the values are reliable across WP versions and so
+   the preview harness renders. Only the brand header, social-button row and the
+   "or" divider are WPImage-specific. */
+.components-modal__screen-overlay {
+  position: fixed; inset: 0; z-index: 100100;
+  background: rgba(0, 0, 0, .5);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  animation: wpiModalFade .14s ease;
+}
+@keyframes wpiModalFade { from { opacity: 0; } to { opacity: 1; } }
+.components-modal__frame {
+  position: relative; box-sizing: border-box; width: 100%; max-width: 412px;
+  background: #fff; border-radius: var(--radius-lg); box-shadow: var(--elevation-large);
+  animation: wpiModalPop .16s ease;
+}
+@keyframes wpiModalPop { from { transform: translateY(8px) scale(.985); opacity: 0; } to { transform: none; opacity: 1; } }
+.components-modal__content.wpi-auth-content { margin: 0; padding: 36px 36px 28px; }
+.components-modal__icon-button {
+  position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; background: none; cursor: pointer; color: var(--fg-muted);
+  border-radius: var(--radius-sm); transition: background .1s, color .1s;
+}
+.components-modal__icon-button:hover { background: var(--gray-100); color: var(--fg); }
+.components-modal__icon-button .nt-ic { width: 18px; height: 18px; }
+
+/* Brand header */
+.wpi-auth-head { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 22px; }
+.wpi-auth-head .components-modal__header-heading { font: var(--fw-semibold) 23px/1.2 var(--font-sans); letter-spacing: -0.01em; margin: 16px 0 6px; color: var(--fg); }
+.wpi-auth-head p { font: var(--fw-regular) 14px/1.5 var(--font-sans); color: var(--fg-muted); margin: 0; }
+
+/* Social buttons: full-width neutral-outline secondary core buttons with a brand glyph */
+.wpi-auth-social { display: flex; flex-direction: column; gap: 10px; }
+.wpi-auth-social .components-button.is-secondary {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; min-height: 44px; border: none; box-shadow: inset 0 0 0 1px var(--border-strong);
+  background: #fff; border-radius: var(--radius-sm); color: var(--fg); cursor: pointer;
+  font: var(--fw-medium) 14px/1 var(--font-sans);
+}
+.wpi-auth-social .components-button.is-secondary:hover,
+.wpi-auth-social .components-button.is-secondary:focus { background: var(--gray-100); box-shadow: inset 0 0 0 1px var(--border-strong); color: var(--fg); }
+
+/* "or" divider */
+.wpi-auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--fg-muted); font-size: 12px; }
+.wpi-auth-divider::before, .wpi-auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* Form (WordPress core TextControl) */
+.wpi-auth-form { display: flex; flex-direction: column; gap: 14px; }
+.wpi-auth-form .components-base-control { display: flex; flex-direction: column; gap: 6px; }
+.wpi-auth-form .components-base-control__label { font: var(--fw-medium) 13px/1 var(--font-sans); color: var(--fg); margin: 0; }
+.wpimage-app .components-text-control__input {
+  width: 100%; height: 42px; box-sizing: border-box; padding: 0 13px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  font: 14px/1 var(--font-sans); color: var(--fg); background: #fff;
+  transition: border-color .1s, box-shadow .1s;
+}
+.wpimage-app .components-text-control__input:focus { outline: none; border-color: var(--wp-admin-theme); box-shadow: 0 0 0 1px var(--wp-admin-theme); }
+.wpi-auth-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin: -2px 0 2px; }
+.wpi-auth-row a { color: var(--wp-admin-theme); text-decoration: none; }
+.wpi-auth-row a:hover { text-decoration: underline; }
+.wpimage-app .button.button-primary.wpi-auth-submit { width: 100%; min-height: 48px; padding: 0 16px; margin-top: 4px; font-size: 15px; font-weight: var(--fw-medium); }
+
+/* Footer link (core is-link button styled as inline text link) */
+.wpi-auth-foot { text-align: center; margin: 18px 0 0; font: 13px/1.4 var(--font-sans); color: var(--fg-muted); }
+.wpimage-app .components-button.is-link { padding: 0; min-height: 0; border: none; background: none; box-shadow: none; font: var(--fw-medium) 13px/1.4 var(--font-sans); color: var(--wp-admin-theme); text-decoration: none; cursor: pointer; vertical-align: baseline; }
+.wpimage-app .components-button.is-link:hover { color: var(--wp-admin-theme-darker-10); text-decoration: underline; background: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .components-modal__screen-overlay, .components-modal__frame { animation: none; }
+}
+
+/* ============================================================
+   Responsive — mobile / narrow admin
+   The WordPress admin menu collapse + mobile hamburger are core behaviors
+   (handled by WordPress itself); these rules only reflow the WPImage plugin
+   content so it stays usable as the content column narrows.
+   Breakpoints mirror WP: 960 (folded menu), 782 (mobile), 600 (phones).
+   ============================================================ */
+
+/* Let tall modals scroll instead of clipping on short viewports */
+.components-modal__screen-overlay { overflow-y: auto; }
+
+@media screen and (max-width: 960px) {
+  .wpimage-app .wpi-twocol         { grid-template-columns: 1fr !important; }
+  .wpimage-app .wpi-statgrid       { grid-template-columns: repeat(2, 1fr) !important; }
+  .wpimage-app .wpi-crosssell-split{ grid-template-columns: 1fr !important; }
+  .wpimage-app .wpi-support-grid   { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media screen and (max-width: 782px) {
+  /* Tighter page + header gutters on mobile */
+  .wpimage-app .wpi-page         { padding: 20px 16px 56px !important; }
+  .wpimage-app .wpi-pageheader   { padding: 16px 16px 0 !important; }
+  .wpimage-app .wpi-support-page { padding: 36px 16px 56px !important; }
+
+  /* Hero stacks: copy on top, mockup centered below */
+  .wpimage-app .wpi-hero {
+    flex-direction: column !important; align-items: flex-start !important;
+    gap: 28px !important; padding: 30px 24px !important; min-height: 0 !important;
+  }
+  .wpimage-app .wpi-heromock { width: 100% !important; max-width: 360px; align-self: center; }
+
+  /* Tabs scroll horizontally instead of wrapping/squishing */
+  .wpimage-app .wpi-tabs {
+    overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .wpimage-app .wpi-tabs::-webkit-scrollbar { display: none; }
+  .wpimage-app .wpi-tabs .components-tab-panel__tabs-item { white-space: nowrap; flex: none; }
+
+  /* Account CTA card: action drops full-width under the text */
+  .wpimage-app .wpi-accountrow { flex-wrap: wrap; }
+  .wpimage-app .wpi-accountrow > .button-hero { flex: 1 1 100% !important; width: 100%; }
+
+  /* Plugin / add-on grids → single column */
+  .wpimage-app .wpi-plugin-grid { grid-template-columns: 1fr !important; }
+  .wpimage-app .wpi-plugin-rows { grid-template-columns: 1fr !important; column-gap: 0 !important; }
+
+  /* Keep the sticky save bar comfortable */
+  .wpimage-app .wpi-savebar { padding: 12px !important; }
+}
+
+@media screen and (max-width: 600px) {
+  .wpimage-app .wpi-statgrid     { grid-template-columns: 1fr !important; }
+  .wpimage-app .wpi-support-grid { grid-template-columns: 1fr !important; }
+
+  /* Header: collapse the two utility buttons into a 3-dot kebab dropdown */
+  .wpimage-app .wpi-head-kebab { display: inline-flex; }
+  .wpimage-app .wpi-brand-actions {
+    position: absolute; top: calc(100% + 6px); right: 0; z-index: 50;
+    flex-direction: column; align-items: stretch; gap: 4px; min-width: 200px; padding: 6px;
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md);
+    box-shadow: var(--elevation-medium); display: none;
+  }
+  .wpimage-app .wpi-brand-actions.is-open { display: flex; }
+  .wpimage-app .wpi-brand-actions .wpi-head-btn {
+    width: 100%; justify-content: flex-start; min-height: 38px; padding: 0 12px;
+    gap: 10px; text-align: left; border-radius: var(--radius-sm);
+  }
+  .wpimage-app .wpi-brand-actions a.wpi-head-btn.components-button.is-tertiary { justify-content: flex-start; color: var(--fg); }
+  /* Uniform fixed-width icon box so both labels start at the same x */
+  .wpimage-app .wpi-brand-actions .wpi-head-btn .nt-ic { width: 18px !important; height: 18px !important; flex: none; }
+  /* Inside the dropdown, the outline Support button reads as a plain menu row */
+  .wpimage-app .wpi-brand-actions .wpi-head-btn.button {
+    border: none; box-shadow: none; background: none; color: var(--fg); justify-content: flex-start;
+  }
+  .wpimage-app .wpi-brand-actions .wpi-head-btn:hover,
+  .wpimage-app .wpi-brand-actions .wpi-head-btn.button:hover { background: var(--gray-100); }
+
+  /* Roomier modal padding trade for small screens */
+  .components-modal__screen-overlay { align-items: flex-start; padding: 16px !important; }
+  .components-modal__content.wpi-auth-content { margin: 0 !important; padding: 28px 22px 22px !important; }
+}

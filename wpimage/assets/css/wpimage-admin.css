@@ -494,6 +494,6 @@ body.toplevel_page_wpimage #wpbody-content { padding-bottom: 0; }
   .wpimage-app .wpi-brand-actions .wpi-head-btn.button:hover { background: var(--gray-100); }
 
   /* Roomier modal padding trade for small screens */
-  .components-modal__screen-overlay { align-items: flex-start; padding: 16px !important; }
+  .components-modal__screen-overlay { align-items: center; padding: 16px !important; }
   .components-modal__content.wpi-auth-content { margin: 0 !important; padding: 28px 22px 22px !important; }
 }

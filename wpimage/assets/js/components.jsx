@@ -148,10 +148,10 @@ function TrendChart({ data, locked }) {
           const x = pad.l + i * bw + bw * 0.18;
           const w = bw * 0.64;
           const y = baseY - h;
-          const on = !locked && hover === i;
+          const on = !locked && hover === i;            // transient hover/tap feedback only
           const fill = locked
             ? 'var(--gray-200)'
-            : ((d.hi || on) ? 'var(--wp-admin-theme)' : 'rgba(56,88,233,0.32)');
+            : (on ? 'var(--wp-admin-theme)' : 'rgba(56,88,233,0.32)');
           return (
             <g key={i}>
               <rect x={x} y={y} width={w} height={h} rx="1.5" fill={fill} />
@@ -168,7 +168,7 @@ function TrendChart({ data, locked }) {
         <div style={{ position:'absolute', ...tip, background:'var(--gray-900)', color:'#fff',
           font:'var(--fw-medium) 12px/1.35 var(--font-sans)', padding:'5px 9px', borderRadius:5,
           whiteSpace:'nowrap', boxShadow:'var(--elevation-medium)', pointerEvents:'none', zIndex:20 }}>
-          <span style={{ opacity:.6 }}>{act.hi ? 'Today' : act.date}{' · '}</span>
+          <span style={{ opacity:.6 }}>{act.date}{' · '}</span>
           <strong style={{ fontWeight:600 }}>{act.v.toLocaleString()}</strong> {act.v === 1 ? 'image' : 'images'}
         </div>
       )}

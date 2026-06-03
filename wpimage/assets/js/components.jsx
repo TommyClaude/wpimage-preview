@@ -112,35 +112,66 @@ function QuotaBar({ used, total }) {
 }
 
 /* ---------------- Trend chart (optimizations over time) ---------------- */
+// Single baseline only (no floating gridlines — they carried no value labels).
+// Hover / tap a column to reveal a tooltip with that day's image count.
 function TrendChart({ data, locked }) {
+  const [hover, setHover] = React.useState(null);
   const W = 560, H = 132, pad = { l:0, r:0, t:10, b:18 };
   const innerW = W - pad.l - pad.r, innerH = H - pad.t - pad.b;
   const max = Math.max(...data.map(d => d.v));
   const bw = innerW / data.length;
+  const baseY = pad.t + innerH;
+
+  // Tooltip geometry for the hovered column (clamped to stay inside the card).
+  const act = (!locked && hover != null) ? data[hover] : null;
+  let tip = null;
+  if (act) {
+    const n = data.length;
+    const topY = baseY - Math.max(2, (act.v / max) * innerH);
+    const cxPct = (pad.l + hover * bw + bw / 2) / W * 100;
+    const above = topY > 42;                                  // room to sit above the bar?
+    const ty = above ? 'calc(-100% - 8px)' : '8px';
+    const horiz = hover <= 2 ? { left: 0 }                    // near left edge → pin left
+                : hover >= n - 3 ? { right: 0 }               // near right edge → pin right
+                : { left: cxPct + '%' };                      // else centre on the bar
+    const tx = (hover <= 2 || hover >= n - 3) ? '' : 'translateX(-50%) ';
+    tip = { ...horiz, top: topY, transform: tx + 'translateY(' + ty + ')' };
+  }
+
   return (
     <div style={{ position:'relative', userSelect: locked ? 'none' : 'auto' }} aria-hidden={locked ? 'true' : undefined}>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display:'block', overflow:'visible' }}>
-        {[0, 0.5, 1].map((g, i) => (
-          <line key={i} x1={0} x2={W} y1={pad.t + innerH * g} y2={pad.t + innerH * g}
-            stroke="var(--gray-200)" strokeWidth="1" />
-        ))}
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ display:'block', overflow:'visible' }}
+        onMouseLeave={() => setHover(null)}>
+        <line x1={0} x2={W} y1={baseY} y2={baseY} stroke="var(--gray-200)" strokeWidth="1" />
         {data.map((d, i) => {
           const h = Math.max(2, (d.v / max) * innerH);
           const x = pad.l + i * bw + bw * 0.18;
           const w = bw * 0.64;
-          const y = pad.t + innerH - h;
+          const y = baseY - h;
+          const on = !locked && hover === i;
           const fill = locked
             ? 'var(--gray-200)'
-            : (d.hi ? 'var(--wp-admin-theme)' : 'rgba(56,88,233,0.32)');
+            : ((d.hi || on) ? 'var(--wp-admin-theme)' : 'rgba(56,88,233,0.32)');
           return (
             <g key={i}>
               <rect x={x} y={y} width={w} height={h} rx="1.5" fill={fill} />
               {d.label && !locked && <text x={x + w / 2} y={H - 4} textAnchor="middle"
                 fontSize="10" fill="var(--fg-muted)" fontFamily="var(--font-sans)">{d.label}</text>}
+              {!locked && <rect x={pad.l + i * bw} y={0} width={bw} height={H} fill="transparent"
+                style={{ cursor:'pointer' }} onMouseEnter={() => setHover(i)}
+                onTouchStart={() => setHover(i)} />}
             </g>
           );
         })}
       </svg>
+      {tip && (
+        <div style={{ position:'absolute', ...tip, background:'var(--gray-900)', color:'#fff',
+          font:'var(--fw-medium) 12px/1.35 var(--font-sans)', padding:'5px 9px', borderRadius:5,
+          whiteSpace:'nowrap', boxShadow:'var(--elevation-medium)', pointerEvents:'none', zIndex:20 }}>
+          {act.date && <span style={{ opacity:.6 }}>{act.date}{' · '}</span>}
+          <strong style={{ fontWeight:600 }}>{act.v.toLocaleString()}</strong> {act.v === 1 ? 'image' : 'images'}
+        </div>
+      )}
     </div>
   );
 }

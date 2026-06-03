@@ -20,19 +20,6 @@ function GoogleG() {
   );
 }
 
-/* ---- WordPress core CheckboxControl (visually-hidden input + box span) ---- */
-function AuthCheckbox({ checked, onChange, children }) {
-  const Ic = window.Ic;
-  return (
-    <label className={'components-checkbox-control' + (checked ? ' is-checked' : '')}>
-      <input type="checkbox" className="components-checkbox-control__input" checked={checked}
-        onChange={(e) => onChange(e.target.checked)} />
-      <span className="components-checkbox-control__box"></span>
-      {children}
-    </label>
-  );
-}
-
 /* ---- Auth modal (login + signup) ---- */
 function LoginModal({ open, mode = 'login', markVariant = 'blue', onClose, onLogin }) {
   const Ic = window.Ic;
@@ -111,4 +98,4 @@ function LoginModal({ open, mode = 'login', markVariant = 'blue', onClose, onLog
   );
 }
 
-Object.assign(window, { LoginModal, GoogleG, AuthCheckbox });
+Object.assign(window, { LoginModal, GoogleG });

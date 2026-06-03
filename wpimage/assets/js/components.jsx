@@ -218,23 +218,4 @@ function InfoTip({ text }) {
   );
 }
 
-/* ---------------- Lock overlay (covers a region when logged out) ---------------- */
-function LockOverlay({ onLogin }) {
-  return (
-    <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column',
-      alignItems:'center', justifyContent:'center', zIndex:5, pointerEvents:'none' }}>
-      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10,
-        pointerEvents:'auto', background:'#fff', border:'1px solid var(--border)',
-        borderRadius:'var(--radius-lg)', boxShadow:'var(--elevation-medium)', padding:'20px 28px' }}>
-        <span style={{ width:38, height:38, borderRadius:9999, background:'var(--surface-subtle, #f0f0f1)',
-          border:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--fg-muted)' }}>
-          <Ic name="lock" cls="sm" />
-        </span>
-        <span style={{ font:'var(--fw-medium) 13px/1 var(--font-sans)', color:'var(--fg)' }}>Login to view your stats</span>
-        <button className="button button-primary button-small" onClick={onLogin}>Login to sync</button>
-      </div>
-    </div>
-  );
-}
-
-Object.assign(window, { Ic, Toggle, SectionCard, SettingRow, StatCard, QuotaBar, TrendChart, SegControl, InfoTip, LockOverlay });
+Object.assign(window, { Ic, Toggle, SectionCard, SettingRow, StatCard, QuotaBar, TrendChart, SegControl, InfoTip });

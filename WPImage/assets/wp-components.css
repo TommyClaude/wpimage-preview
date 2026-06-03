@@ -1,0 +1,181 @@
+/* ============================================================
+   NinjaTeam · WordPress (Gutenberg) component styles
+   Cosmetic recreations of the WP 7 component library.
+   Pair with colors_and_type.css + icons.css.
+   ============================================================ */
+
+/* ---------------- Button ---------------- */
+.wp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  height: 36px; padding: 0 12px;
+  font: var(--fw-regular) 13px/1 var(--font-sans);
+  border-radius: var(--radius-sm); border: none; cursor: pointer;
+  box-sizing: border-box; white-space: nowrap; transition: background-color .1s, box-shadow .1s, color .1s;
+  background: transparent; color: var(--wp-admin-theme); user-select: none;
+}
+.wp-btn .nt-ic { width: 20px; height: 20px; }
+.wp-btn.lg { height: 40px; padding: 0 14px; }
+.wp-btn.sm { height: 24px; padding: 0 8px; font-size: 11px; }
+.wp-btn.icon { width: 36px; padding: 0; }
+.wp-btn.icon.lg { width: 40px; }
+.wp-btn.icon.sm { width: 24px; }
+
+/* primary */
+.wp-btn.primary { background: var(--wp-admin-theme); color: #fff; }
+.wp-btn.primary:hover { background: var(--wp-admin-theme-darker-10); }
+.wp-btn.primary:active { background: var(--wp-admin-theme-darker-20); }
+
+/* secondary (bordered) */
+.wp-btn.secondary { box-shadow: inset 0 0 0 1px var(--wp-admin-theme); color: var(--wp-admin-theme); }
+.wp-btn.secondary:hover { background: rgba(56,88,233,.04); box-shadow: inset 0 0 0 1.5px var(--wp-admin-theme); }
+
+/* tertiary (text) */
+.wp-btn.tertiary { color: var(--wp-admin-theme); }
+.wp-btn.tertiary:hover { background: rgba(56,88,233,.06); }
+
+/* link */
+.wp-btn.link { height: auto; padding: 0; color: var(--wp-admin-theme); text-decoration: underline; background: none; }
+.wp-btn.link:hover { color: var(--wp-admin-theme-darker-20); }
+
+/* destructive */
+.wp-btn.destructive.primary { background: var(--alert-red); }
+.wp-btn.destructive.primary:hover { background: #a91212; }
+.wp-btn.destructive.secondary { box-shadow: inset 0 0 0 1px var(--alert-red); color: var(--alert-red); }
+.wp-btn.destructive.tertiary { color: var(--alert-red); }
+.wp-btn.destructive.secondary:hover, .wp-btn.destructive.tertiary:hover { background: rgba(204,24,24,.05); }
+
+/* brand (NinjaTeam) */
+.wp-btn.brand { background: var(--nt-brand); color: #fff; }
+.wp-btn.brand:hover { background: var(--nt-deep); }
+
+.wp-btn:disabled, .wp-btn[aria-disabled="true"] { opacity:.5; cursor: default; pointer-events: none; }
+
+/* focus ring (WP style: 1.5px theme outline offset) */
+.wp-btn:focus-visible { outline: 1.5px solid var(--wp-admin-theme); outline-offset: 1px; }
+
+/* ---------------- Inputs ---------------- */
+.wp-field { display: flex; flex-direction: column; gap: 4px; }
+.wp-label { font: var(--fw-medium) 11px/1.4 var(--font-sans); text-transform: uppercase; letter-spacing: .02em; color: var(--fg); }
+.wp-input, .wp-select, .wp-textarea {
+  height: 36px; padding: 0 8px; box-sizing: border-box;
+  font: 13px/1 var(--font-sans); color: var(--fg);
+  background: #fff; border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm); transition: box-shadow .1s, border-color .1s; width: 100%;
+}
+.wp-textarea { height: auto; min-height: 80px; padding: 8px; line-height: 1.5; resize: vertical; }
+.wp-input::placeholder, .wp-textarea::placeholder { color: var(--fg-muted); }
+.wp-input:focus, .wp-select:focus, .wp-textarea:focus {
+  outline: none; border-color: var(--wp-admin-theme);
+  box-shadow: 0 0 0 1px var(--wp-admin-theme);
+}
+.wp-select { appearance: none; padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg transform='translate(6.5 9.2)'%3E%3Cpath d='M 11 1.2 L 5.5 5.6 L 0 1.2 L 0.9 0 L 5.5 3.6 L 10 0 L 11 1.2 Z' fill='%23757575'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center; background-size: 18px; cursor: pointer; }
+.wp-help { font: 12px/1.4 var(--font-sans); color: var(--fg-muted); }
+
+/* search field */
+.wp-search { position: relative; display: flex; align-items: center; }
+.wp-search .nt-ic { position: absolute; left: 8px; width: 20px; height: 20px; color: var(--fg-muted); pointer-events: none; }
+.wp-search .wp-input { padding-left: 32px; }
+
+/* ---------------- Toggle (ToggleControl) ---------------- */
+/* Figma: 32×16 track, 12px thumb, 2px gaps. OFF white + 1px #949494 border + #1e1e1e
+   thumb. ON #3858e9 fill (no border) + white thumb. Focus = 2px gap + 1.5px theme ring. */
+.wp-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: 13px/1.43 var(--font-sans); color: var(--fg); }
+.wp-toggle .track { width: 32px; height: 16px; border-radius: 999px; background: #fff;
+  box-shadow: inset 0 0 0 1px var(--gray-600); position: relative;
+  transition: background-color .12s ease, box-shadow .12s ease; flex: none; }
+.wp-toggle .thumb { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px;
+  border-radius: 50%; background: rgb(30,30,30); transition: left .12s ease, background-color .12s ease; }
+.wp-toggle.on .track { background: var(--wp-admin-theme); box-shadow: none; }
+.wp-toggle.on .thumb { left: 18px; background: #fff; }
+.wp-toggle.disabled { opacity: .3; cursor: default; pointer-events: none; }
+.wp-toggle.focused .track, .wp-toggle:focus-visible .track { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--wp-admin-theme); }
+
+/* ---------------- Checkbox (CheckboxControl) ---------------- */
+/* Figma: 16×16, 2px radius, 1px #949494 border. ON: #3858e9 fill + white check.
+   Indeterminate: #3858e9 fill + 10px white dash. Focus = 2px gap + 1.5px theme ring. */
+.wp-check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: 13px/1.43 var(--font-sans); color: var(--fg); }
+.wp-check .box { width: 16px; height: 16px; box-sizing: border-box; border: 1px solid var(--gray-600);
+  border-radius: 2px; position: relative; flex: none; background: #fff;
+  display: inline-flex; align-items: center; justify-content: center; transition: background-color .1s, border-color .1s; }
+.wp-check.on .box, .wp-check.indeterminate .box { background: var(--wp-admin-theme); border-color: var(--wp-admin-theme); }
+/* white check via CSS (no markup needed — works in the kit too) */
+.wp-check .box .nt-ic { display: none; }
+.wp-check.on:not(.wp-radio) .box::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 1.6px 1.6px 0; transform: translate(-50%, -58%) rotate(45deg); }
+.wp-check .box .dash { display: none; width: 10px; height: 2px; background: #fff; }
+.wp-check.indeterminate .box .dash { display: block; }
+.wp-check.disabled { opacity: .3; cursor: default; pointer-events: none; }
+.wp-check.focused .box, .wp-check:focus-visible .box { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--wp-admin-theme); }
+
+/* ---------------- Radio (RadioControl) ---------------- */
+/* Figma: 16×16 circle, 1px #949494 border. Selected = #3858e9 fill (no border)
+   + 8px white centre dot. Focus = 2px gap + 1.5px theme ring. */
+.wp-radio .box { width: 16px; height: 16px; box-sizing: border-box; border: 1px solid var(--gray-600);
+  border-radius: 50%; background: #fff; position: relative; transition: background-color .1s, border-color .1s; }
+.wp-radio.on .box { background: var(--wp-admin-theme); border-color: var(--wp-admin-theme); }
+.wp-radio.on .box::after { content: ""; position: absolute; inset: 0; margin: auto; border: 0; transform: none;
+  width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.wp-radio .box .dash, .wp-radio .box .nt-ic { display: none; }
+.wp-radio.focused .box, .wp-radio:focus-visible .box { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--wp-admin-theme); }
+
+/* ---------------- Notice ---------------- */
+.wp-notice { display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--gray-600); border-radius: var(--radius-sm); padding: 12px 14px; box-shadow: var(--elevation-x-small); }
+.wp-notice .nt-ic { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+.wp-notice .body { font: 13px/1.5 var(--font-sans); color: var(--fg); }
+.wp-notice .body b { font-weight: 600; }
+.wp-notice.info    { border-left-color: var(--wp-admin-theme); } .wp-notice.info .nt-ic { color: var(--wp-admin-theme); }
+.wp-notice.success { border-left-color: var(--alert-green); }    .wp-notice.success .nt-ic { color: var(--alert-green); }
+.wp-notice.warning { border-left-color: var(--alert-yellow); }   .wp-notice.warning .nt-ic { color: #b8860b; }
+.wp-notice.error   { border-left-color: var(--alert-red); }      .wp-notice.error .nt-ic { color: var(--alert-red); }
+
+/* snackbar */
+.wp-snackbar { display: inline-flex; align-items: center; gap: 16px; background: var(--gray-900); color: #fff; font: 13px/1.4 var(--font-sans); padding: 12px 16px; border-radius: var(--radius-sm); box-shadow: var(--elevation-medium); }
+.wp-snackbar a { color: #fff; text-decoration: underline; font-weight: 600; }
+
+/* ---------------- Card ---------------- */
+.wp-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elevation-x-small); overflow: hidden; }
+.wp-card-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.wp-card-header h3 { margin: 0; font: var(--fw-semibold) 15px/1.4 var(--font-sans); }
+.wp-card-body { padding: 16px; }
+.wp-card-footer { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface-subtle); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ---------------- Panel (settings) ---------------- */
+.wp-panel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.wp-panel-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.wp-panel-row:last-child { border-bottom: none; }
+.wp-panel-row .meta { display: flex; flex-direction: column; gap: 2px; }
+.wp-panel-row .meta .ttl { font: var(--fw-medium) 13px/1.4 var(--font-sans); color: var(--fg); }
+.wp-panel-row .meta .sub { font: 12px/1.4 var(--font-sans); color: var(--fg-muted); }
+
+/* ---------------- Badge / chip / token ---------------- */
+.wp-badge { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 2px; font: var(--fw-medium) 12px/1 var(--font-sans); }
+.wp-badge.gray   { background: var(--gray-100); color: var(--gray-800); }
+.wp-badge.blue   { background: #e9edfb; color: var(--wp-admin-theme-darker-20); }
+.wp-badge.green  { background: #e5f4ea; color: #1a7a3e; }
+.wp-badge.red    { background: #fbeaea; color: var(--alert-red); }
+.wp-badge.yellow { background: #fbf3e2; color: #946200; }
+.wp-token { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 4px 0 10px; background: var(--gray-100); border-radius: 2px; font: 13px/1 var(--font-sans); color: var(--fg); }
+.wp-token .x { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; border-radius: 2px; cursor: pointer; color: var(--fg-muted); }
+.wp-token .x:hover { background: var(--gray-300); }
+
+/* ---------------- Menu / dropdown ---------------- */
+.wp-menu { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--elevation-medium); padding: 4px; min-width: 200px; }
+.wp-menu-item { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: var(--radius-sm); font: 13px/1 var(--font-sans); color: var(--fg); cursor: pointer; }
+.wp-menu-item .nt-ic { width: 20px; height: 20px; color: var(--fg); }
+.wp-menu-item:hover { background: var(--wp-admin-theme); color: #fff; }
+.wp-menu-item:hover .nt-ic { color: #fff; }
+.wp-menu-item.danger { color: var(--alert-red); }
+.wp-menu-item.danger:hover { background: var(--alert-red); color: #fff; }
+.wp-menu-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ---------------- Spinner ---------------- */
+.wp-spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(56,88,233,.2); border-top-color: var(--wp-admin-theme); animation: wp-spin .8s linear infinite; }
+@keyframes wp-spin { to { transform: rotate(360deg); } }
+
+/* ---------------- Tabs ---------------- */
+.wp-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+.wp-tab { padding: 12px 16px; font: var(--fw-medium) 13px/1 var(--font-sans); color: var(--fg-muted); cursor: pointer; border-bottom: 1.5px solid transparent; margin-bottom: -1px; }
+.wp-tab:hover { color: var(--fg); }
+.wp-tab.active { color: var(--wp-admin-theme); border-bottom-color: var(--wp-admin-theme); }

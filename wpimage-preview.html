@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WPImage — wp-admin preview harness (dev only, not shipped)</title>
+<link rel="stylesheet" href="wpimage/assets/css/tokens.css">
+<link rel="stylesheet" href="wpimage/assets/css/wpimage-admin.css">
+<style>
+  /* ===== Minimal simulation of the WordPress admin shell + core controls.
+     This is ONLY for previewing the plugin outside a real WP install.
+     In production these styles come from WordPress core. ===== */
+  html, body { margin:0; }
+  body { background:#f0f0f1; }
+  #wpwrap { display:flex; min-height:100vh; }
+
+  /* ===== WordPress admin menu (core behavior reproduced for the preview) =====
+     Desktop: 160px menu with a "Collapse menu" control that folds it to a 36px
+     icon rail. Mobile (≤782px): the menu is off-canvas by default and opened by
+     the admin-bar hamburger — mirroring native WordPress. ===== */
+  #adminmenuback {
+    width:160px; background:#1d2327; flex:none; display:flex; flex-direction:column;
+    transition:width .15s ease; position:relative; z-index:9990;
+  }
+  #adminmenu-list { flex:1; overflow:hidden; }
+  #adminmenuback .row { height:34px; display:flex; align-items:center; gap:10px; padding:0 12px; color:#f0f0f1; font:14px/1 var(--font-sans); white-space:nowrap; cursor:pointer; }
+  #adminmenuback .row:hover { background:#2c3338; color:#72aee6; }
+  #adminmenuback .row.active { background:#2271b1; color:#fff; }
+  #adminmenuback .row.active:hover { background:#2271b1; color:#fff; }
+  #adminmenuback .dot { width:18px; height:18px; border-radius:4px; background:#3a4046; flex:none; }
+  #adminmenuback .row.active .dot { background:rgba(255,255,255,.45); }
+  #adminmenuback .lbl { overflow:hidden; }
+  #collapse-menu {
+    display:flex; align-items:center; gap:10px; height:34px; padding:0 12px; margin:0;
+    background:none; border:0; border-top:1px solid #3a4046; color:#a7aaad;
+    font:13px/1 var(--font-sans); cursor:pointer; white-space:nowrap; width:100%;
+  }
+  #collapse-menu:hover { color:#72aee6; }
+  #collapse-menu .chevron { width:18px; height:18px; flex:none; display:flex; align-items:center; justify-content:center; transition:transform .15s ease; }
+  #collapse-menu .chevron svg { width:14px; height:14px; }
+
+  /* Folded (icon-only rail) — desktop */
+  body.folded #adminmenuback { width:36px; }
+  body.folded #adminmenuback .row { padding:0 9px; gap:0; }
+  body.folded #adminmenuback .lbl,
+  body.folded #collapse-menu .lbl { display:none; }
+  body.folded #collapse-menu { justify-content:center; padding:0; }
+  body.folded #collapse-menu .chevron { transform:rotate(180deg); }
+
+  #wpcontent { flex:1; min-width:0; padding-left:20px; transition:padding .15s ease; }
+  #wpadminbar { height:32px; background:#1d2327; color:#c3c4c7; display:flex; align-items:center; gap:8px; padding:0 12px; font:13px/1 var(--font-sans); position:sticky; top:0; z-index:9991; }
+  #menu-toggle-btn {
+    display:none; align-items:center; justify-content:center; width:30px; height:24px; margin-left:-4px;
+    background:none; border:0; color:#c3c4c7; cursor:pointer; border-radius:3px;
+  }
+  #menu-toggle-btn:hover { color:#fff; background:rgba(255,255,255,.08); }
+  #menu-toggle-btn svg { width:20px; height:20px; }
+  #wp-menu-scrim { display:none; position:fixed; inset:32px 0 0 0; background:rgba(0,0,0,.45); z-index:9989; }
+
+  @media screen and (max-width:782px) {
+    #adminmenuback {
+      position:fixed; top:32px; bottom:0; left:0; width:200px;
+      transform:translateX(-100%); transition:transform .2s ease;
+    }
+    body.menu-open #adminmenuback { transform:translateX(0); box-shadow:6px 0 26px rgba(0,0,0,.3); }
+    body.menu-open #wp-menu-scrim { display:block; }
+    /* On mobile the fold rail isn't used — the menu is full-width when open */
+    body.folded #adminmenuback { width:200px; }
+    body.folded #adminmenuback .row { padding:0 12px; gap:10px; }
+    body.folded #adminmenuback .lbl, body.folded #collapse-menu .lbl { display:inline; }
+    #collapse-menu { display:none; }
+    #wpcontent { padding-left:12px; }
+    #menu-toggle-btn { display:inline-flex; }
+  }
+
+  /* WordPress core buttons (buttons.css excerpt) */
+  .button, .button-primary, .button-secondary {
+    display:inline-block; text-decoration:none; font-size:13px; line-height:2.15384615;
+    min-height:30px; margin:0; padding:0 10px; cursor:pointer; border-width:1px; border-style:solid;
+    -webkit-appearance:none; border-radius:3px; white-space:nowrap; box-sizing:border-box;
+    font-family:var(--font-sans);
+  }
+  .button, .button-secondary { color:#2271b1; border-color:#2271b1; background:#f6f7f7; vertical-align:top; }
+  .button:hover, .button-secondary:hover { background:#f0f0f1; border-color:#0a4b78; color:#0a4b78; }
+  .button.button-small { min-height:26px; line-height:2.18181818; padding:0 8px; font-size:11px; }
+  .button.button-hero { font-size:14px; min-height:46px; line-height:1; padding:0 28px; }
+  .button-primary { background:#2271b1; border-color:#2271b1; color:#fff; text-shadow:none; }
+  .button-primary:hover { background:#135e96; border-color:#135e96; color:#fff; }
+  .button-link { margin:0; padding:0; box-shadow:none; border:0; border-radius:0; background:none; cursor:pointer; text-align:left; color:#2271b1; text-decoration:underline; min-height:0; line-height:normal; font-family:var(--font-sans); font-size:13px; }
+  .button-link:hover { color:#135e96; }
+  .button:disabled, .button[disabled] { color:#a7aaad !important; border-color:#dcdcde !important; background:#f6f7f7 !important; cursor:default; }
+  input.small-text { font-size:14px; line-height:2; min-height:30px; box-sizing:border-box; border:1px solid #8c8f94; border-radius:4px; padding:0 8px; }
+  input.small-text:focus { border-color:#2271b1; box-shadow:0 0 0 1px #2271b1; outline:2px solid transparent; }
+  .spinner { background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 50 50'%3E%3Cpath fill='%23787c82' d='M25 5a20 20 0 1 0 0 40 20 20 0 0 0 0-40zm0 6a14 14 0 1 1 0 28 14 14 0 0 1 0-28z' opacity='.3'/%3E%3Cpath fill='%23787c82' d='M25 5a20 20 0 0 1 20 20h-6A14 14 0 0 0 25 11z'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 25 25' to='360 25 25' dur='.8s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E") no-repeat center; background-size:20px; width:20px; height:20px; display:inline-block; vertical-align:middle; }
+  .screen-reader-text { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); }
+
+  /* WordPress core @wordpress/components FormToggle (wp-components.css excerpt).
+     In the real plugin this comes from WordPress's enqueued `wp-components`
+     stylesheet; reproduced here only so the preview harness renders it. */
+  .components-form-toggle { position:relative; display:inline-block; }
+  .components-form-toggle .components-form-toggle__track {
+    content:""; display:inline-block; box-sizing:border-box; vertical-align:top;
+    background-color:#fff; border:1px solid #1e1e1e; width:36px; height:18px;
+    border-radius:9px; transition:.2s background ease; }
+  .components-form-toggle .components-form-toggle__thumb {
+    display:block; position:absolute; box-sizing:border-box; top:3px; left:3px;
+    width:12px; height:12px; border-radius:50%; transition:.1s transform ease;
+    background-color:#1e1e1e; border:5px solid #1e1e1e; }
+  .components-form-toggle.is-checked .components-form-toggle__track {
+    background-color:#3858e9; border-color:#3858e9; }
+  .components-form-toggle.is-checked .components-form-toggle__thumb {
+    background-color:#fff; border-width:0; transform:translateX(18px); }
+  .components-form-toggle input.components-form-toggle__input[type=checkbox] {
+    position:absolute; top:0; left:0; width:100%; height:100%; opacity:0;
+    margin:0; padding:0; border:none; z-index:1; cursor:pointer; }
+  .components-form-toggle.is-disabled { opacity:.3; }
+</style>
+</head>
+<body class="wp-admin toplevel_page_wpimage auto-fold">
+<div id="wpwrap">
+  <div id="adminmenuback">
+    <div id="adminmenu-list">
+      <div class="row"><span class="dot"></span><span class="lbl">Dashboard</span></div>
+      <div class="row"><span class="dot"></span><span class="lbl">Posts</span></div>
+      <div class="row"><span class="dot"></span><span class="lbl">Media</span></div>
+      <div class="row"><span class="dot"></span><span class="lbl">Plugins</span></div>
+      <div class="row active"><span class="dot"></span><span class="lbl">WPImage</span></div>
+      <div class="row"><span class="dot"></span><span class="lbl">Settings</span></div>
+    </div>
+    <button id="collapse-menu" type="button" aria-label="Collapse menu" aria-expanded="true">
+      <span class="chevron"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.6 7.4 13.4 6l-6 6 6 6 1.2-1.4-4.6-4.6z"/></svg></span>
+      <span class="lbl">Collapse menu</span>
+    </button>
+  </div>
+  <div id="wpcontent">
+    <div id="wpadminbar">
+      <button id="menu-toggle-btn" type="button" aria-label="Toggle menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z"/></svg>
+      </button>
+      <span>Ninja Demo Site &nbsp;·&nbsp; Howdy, Long</span>
+    </div>
+    <div class="wrap wpimage-wrap">
+      <h1 class="screen-reader-text">WPImage</h1>
+      <div id="wpimage-root" class="wpimage-app"><div class="wpi-skeleton" role="status" aria-live="polite" aria-label="Loading WPImage…">
+        <div class="wpi-sk-header">
+          <div class="wpi-sk-headrow">
+            <span class="wpi-sk sk-logo"></span>
+            <div class="sk-titles"><span class="wpi-sk sk-title"></span><span class="wpi-sk sk-subtitle"></span></div>
+            <div class="sk-btns"><span class="wpi-sk sk-btn"></span><span class="wpi-sk sk-btn"></span></div>
+          </div>
+          <div class="wpi-sk-tabs"><span class="wpi-sk sk-tab"></span><span class="wpi-sk sk-tab"></span><span class="wpi-sk sk-tab"></span></div>
+        </div>
+        <div class="wpi-sk-body">
+          <div class="wpi-sk wpi-sk-hero"></div>
+          <div class="wpi-sk-stats">
+            <div class="wpi-sk-stat"><span class="wpi-sk sk-ico"></span><span class="wpi-sk sk-num"></span><span class="wpi-sk sk-sub"></span></div>
+            <div class="wpi-sk-stat"><span class="wpi-sk sk-ico"></span><span class="wpi-sk sk-num"></span><span class="wpi-sk sk-sub"></span></div>
+            <div class="wpi-sk-stat"><span class="wpi-sk sk-ico"></span><span class="wpi-sk sk-num"></span><span class="wpi-sk sk-sub"></span></div>
+          </div>
+          <div class="wpi-sk-cols">
+            <div class="wpi-sk-panel"><span class="wpi-sk sk-h"></span><span class="wpi-sk sk-fill"></span></div>
+            <div class="wpi-sk-panel"><span class="wpi-sk sk-h"></span><span class="wpi-sk sk-fill"></span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+  <div id="wp-menu-scrim"></div>
+</div>
+
+<script>
+  /* Reproduce WordPress admin-menu collapse + mobile hamburger for the preview.
+     Desktop: #collapse-menu toggles body.folded (icon rail).
+     Mobile (≤782px): #menu-toggle-btn toggles body.menu-open (off-canvas). */
+  (function () {
+    var body = document.body;
+    var collapse = document.getElementById('collapse-menu');
+    var toggle = document.getElementById('menu-toggle-btn');
+    var scrim = document.getElementById('wp-menu-scrim');
+    var FOLD_KEY = 'wpimage-preview-folded';
+
+    // Restore persisted desktop fold state
+    if (localStorage.getItem(FOLD_KEY) === '1') body.classList.add('folded');
+
+    collapse.addEventListener('click', function () {
+      var folded = body.classList.toggle('folded');
+      collapse.setAttribute('aria-expanded', String(!folded));
+      localStorage.setItem(FOLD_KEY, folded ? '1' : '0');
+    });
+
+    function openMenu(open) {
+      body.classList.toggle('menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    }
+    toggle.addEventListener('click', function () { openMenu(!body.classList.contains('menu-open')); });
+    scrim.addEventListener('click', function () { openMenu(false); });
+    // Close the mobile menu after choosing an item
+    document.getElementById('adminmenu-list').addEventListener('click', function () {
+      if (window.matchMedia('(max-width:782px)').matches) openMenu(false);
+    });
+    // Reset mobile state when crossing back to desktop
+    window.matchMedia('(max-width:782px)').addEventListener('change', function (e) {
+      if (!e.matches) openMenu(false);
+    });
+  })();
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="wpimage/assets/js/icons.js"></script>
+<script type="text/babel" src="wpimage/assets/js/components.jsx"></script>
+<script type="text/babel" src="wpimage/assets/js/cross-sell.jsx"></script>
+<script type="text/babel" src="wpimage/assets/js/support.jsx"></script>
+<script type="text/babel" src="wpimage/assets/js/auth-modal.jsx"></script>
+<script type="text/babel" src="wpimage/assets/js/app.jsx"></script>
+</body>
+</html>

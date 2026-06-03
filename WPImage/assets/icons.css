@@ -1,0 +1,19 @@
+/* ============================================================
+   NinjaTeam icon helper — WordPress (@wordpress/icons) set.
+   Glyphs are injected as inline <svg fill="currentColor"> by
+   icons.js (capture-safe, recolors via `color`).
+   Usage:  <i class="nt-ic ic-cog"></i>
+   + load <script src=".../assets/icons.js"></script> once per page.
+   Size with .sm / .xs or width/height; color with `color`.
+   ============================================================ */
+.nt-ic {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  line-height: 0;
+  color: inherit;
+}
+.nt-ic > svg { width: 100%; height: 100%; display: block; }
+.nt-ic.sm { width: 20px; height: 20px; }
+.nt-ic.xs { width: 16px; height: 16px; }

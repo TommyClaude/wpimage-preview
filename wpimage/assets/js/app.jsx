@@ -260,6 +260,77 @@ function CompressionMockup() {
 
 }
 
+/* ---------- Recently optimized images list ---------- */
+const WPI_RECENT = [
+  { name:'hero-home-banner.jpg',   dim:'1920 × 1080', before:'1.84 MB', after:'612 KB', pct:67, when:'2m ago' },
+  { name:'product-detail-04.png',  dim:'1200 × 1200', before:'948 KB',  after:'318 KB', pct:66, when:'21m ago' },
+  { name:'blog-cover-spring.jpg',  dim:'1440 × 810',  before:'820 KB',  after:'286 KB', pct:65, when:'1h ago' },
+  { name:'team-portrait-anna.jpg', dim:'1600 × 900',  before:'1.21 MB', after:'430 KB', pct:64, when:'3h ago' },
+  { name:'gallery-summer-09.jpg',  dim:'2048 × 1365', before:'2.40 MB', after:'770 KB', pct:68, when:'5h ago' },
+];
+const WPI_THUMB_HUES = [210, 152, 24, 280, 340];
+
+// Tiny generated thumbnail (gradient + image glyph) — no real assets in preview.
+function RecentThumb({ i }) {
+  const h = WPI_THUMB_HUES[i % WPI_THUMB_HUES.length];
+  return (
+    <span style={{ width:40, height:40, borderRadius:8, flex:'none', overflow:'hidden',
+      background:`linear-gradient(135deg, hsl(${h} 70% 62%), hsl(${h + 24} 72% 48%))`,
+      display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="8.5" cy="8.5" r="2.1" fill="rgba(255,255,255,.92)" />
+        <path d="M3.5 18 L9 11 L12.5 15 L15.5 11 L20.5 18 Z" fill="rgba(255,255,255,.92)" />
+      </svg>
+    </span>
+  );
+}
+
+function RecentlyOptimized({ synced }) {
+  return (
+    <SectionCard title="Recently optimized" sub="Your latest image optimizations" icon="cloud-upload" pad={false}
+      action={synced
+        ? <button className="components-button is-tertiary is-small">View all<Ic name="chevron-right" cls="xs" /></button>
+        : null}>
+      <div>
+        {WPI_RECENT.map((r, i) => {
+          const last = i === WPI_RECENT.length - 1;
+          const rowStyle = { display:'flex', alignItems:'center', gap:12, padding:'11px 16px',
+            borderBottom: last ? 'none' : '1px solid var(--border)' };
+          if (!synced) {
+            return (
+              <div key={i} style={rowStyle}>
+                <span style={{ width:40, height:40, borderRadius:8, flex:'none', background:'var(--gray-200)' }} />
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ height:13, width:'45%', borderRadius:4, background:'var(--gray-200)' }} />
+                  <div style={{ height:11, width:'30%', borderRadius:4, background:'var(--gray-200)', marginTop:7 }} />
+                </div>
+                <span style={{ height:20, width:48, borderRadius:2, background:'var(--gray-200)', flex:'none' }} />
+              </div>
+            );
+          }
+          return (
+            <div key={i} style={rowStyle}>
+              <RecentThumb i={i} />
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ font:'var(--fw-medium) 13px/1.3 var(--font-sans)', color:'var(--fg)',
+                  overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{r.name}</div>
+                <div style={{ font:'12px/1.3 var(--font-sans)', color:'var(--fg-muted)', marginTop:3,
+                  overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                  {r.dim} · {r.before} → {r.after}
+                </div>
+              </div>
+              <div style={{ flex:'none', textAlign:'right' }}>
+                <span className="components-badge is-success">−{r.pct}%</span>
+                <div style={{ font:'11px/1.3 var(--font-sans)', color:'var(--fg-muted)', marginTop:5 }}>{r.when}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </SectionCard>
+  );
+}
+
 function DashboardPage({ t, synced, syncing, openLogin, onDisconnect }) {
   const trendVals = [3,5,2,6,4,1,2,4,7,5,8,6,2,3,5,7,4,9,7,3,2,5,8,6,10,7,4,2,6,9];
   // Real-time rolling 30-day window ending today (index 29 = today). Axis ticks
@@ -375,6 +446,8 @@ function DashboardPage({ t, synced, syncing, openLogin, onDisconnect }) {
             </div>
           </SectionCard>
         </div>
+
+        <RecentlyOptimized synced={synced} />
       </div>
     </div>
   );
@@ -523,7 +596,7 @@ function PluginShell() {
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:18, fontWeight:600, letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8 }}>
               WPImage
-              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.25</span>
+              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.26</span>
             </div>
             <div style={{ font:'12px/1.4 var(--font-sans)', color:'var(--fg-muted)', marginTop:1 }}>Image compression for WordPress</div>
           </div>

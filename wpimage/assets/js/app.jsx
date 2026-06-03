@@ -287,7 +287,7 @@ function RecentThumb({ i }) {
 
 function RecentlyOptimized({ synced }) {
   return (
-    <SectionCard title="Recently optimized" sub="Your latest image optimizations" icon="cloud-upload" pad={false}
+    <SectionCard title="Recently optimized" icon="cloud-upload" pad={false}
       action={synced
         ? <button className="components-button is-tertiary is-small">View all<Ic name="chevron-right" cls="xs" style={{ marginRight:-6 }} /></button>
         : null}>
@@ -596,7 +596,7 @@ function PluginShell() {
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:18, fontWeight:600, letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8 }}>
               WPImage
-              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.28</span>
+              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.29</span>
             </div>
             <div style={{ font:'12px/1.4 var(--font-sans)', color:'var(--fg-muted)', marginTop:1 }}>Image compression for WordPress</div>
           </div>

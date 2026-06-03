@@ -87,7 +87,7 @@ function StatCard({ icon, tint, label, value, sub, locked }) {
           <div style={{ fontSize:32, fontWeight:600, letterSpacing:'-0.02em', marginTop:10, color:'var(--fg)' }}>
             {value}
           </div>
-          <div style={{ fontSize:12, color:'var(--fg-muted)', marginTop:3, fontWeight:500 }}>{sub}</div>
+          <div style={{ fontSize:12, color:'var(--fg-muted)', marginTop:8, fontWeight:500 }}>{sub}</div>
         </React.Fragment>
       )}
     </div>

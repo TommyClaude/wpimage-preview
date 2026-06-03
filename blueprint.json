@@ -10,7 +10,7 @@
       "step": "installPlugin",
       "pluginZipFile": {
         "resource": "url",
-        "url": "https://tommyclaude.github.io/wpimage-preview/wpimage.zip?v=2.8.24"
+        "url": "https://tommyclaude.github.io/wpimage-preview/wpimage.zip?v=2.8.25"
       },
       "options": {
         "activate": true

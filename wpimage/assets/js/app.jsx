@@ -271,16 +271,27 @@ const WPI_RECENT = [
 const WPI_THUMB_HUES = [210, 152, 24, 280, 340];
 
 // Tiny generated thumbnail (gradient + image glyph) — no real assets in preview.
+// A green check badge marks the image as optimized / done.
 function RecentThumb({ i }) {
   const h = WPI_THUMB_HUES[i % WPI_THUMB_HUES.length];
   return (
-    <span style={{ width:40, height:40, borderRadius:8, flex:'none', overflow:'hidden',
-      background:`linear-gradient(135deg, hsl(${h} 70% 62%), hsl(${h + 24} 72% 48%))`,
-      display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="8.5" cy="8.5" r="2.1" fill="rgba(255,255,255,.92)" />
-        <path d="M3.5 18 L9 11 L12.5 15 L15.5 11 L20.5 18 Z" fill="rgba(255,255,255,.92)" />
-      </svg>
+    <span style={{ position:'relative', width:40, height:40, flex:'none', display:'block' }}>
+      <span style={{ width:40, height:40, borderRadius:8, overflow:'hidden',
+        background:`linear-gradient(135deg, hsl(${h} 70% 62%), hsl(${h + 24} 72% 48%))`,
+        display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="2.1" fill="rgba(255,255,255,.92)" />
+          <path d="M3.5 18 L9 11 L12.5 15 L15.5 11 L20.5 18 Z" fill="rgba(255,255,255,.92)" />
+        </svg>
+      </span>
+      <span style={{ position:'absolute', right:-4, bottom:-4, width:17, height:17, borderRadius:9999,
+        background:'var(--alert-green)', border:'2px solid #fff', display:'flex', alignItems:'center',
+        justifyContent:'center', boxSizing:'border-box' }} title="Optimized">
+        <svg width="9" height="9" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M1.5 6.2 L4.6 9.3 L10.5 2.7" stroke="#fff" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
     </span>
   );
 }
@@ -596,7 +607,7 @@ function PluginShell() {
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:18, fontWeight:600, letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8 }}>
               WPImage
-              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.29</span>
+              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.30</span>
             </div>
             <div style={{ font:'12px/1.4 var(--font-sans)', color:'var(--fg-muted)', marginTop:1 }}>Image compression for WordPress</div>
           </div>

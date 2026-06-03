@@ -351,18 +351,15 @@ body.toplevel_page_wpimage #wpbody-content { padding-bottom: 0; }
 .components-modal__screen-overlay {
   position: fixed; inset: 0; z-index: 100100;
   background: rgba(0, 0, 0, .5);
-  display: flex; align-items: flex-start; justify-content: center; padding: 24px;
-  overflow-y: auto;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
   animation: wpiModalFade .14s ease;
 }
-/* margin:auto on the frame centers it vertically when it fits,
-   and lets it scroll naturally when taller than the viewport */
 @keyframes wpiModalFade { from { opacity: 0; } to { opacity: 1; } }
 .components-modal__frame {
   position: relative; box-sizing: border-box; width: 100%; max-width: 412px;
+  max-height: calc(100vh - 32px); overflow-y: auto;
   background: #fff; border-radius: var(--radius-lg); box-shadow: var(--elevation-large);
   animation: wpiModalPop .16s ease;
-  margin: auto;
 }
 @keyframes wpiModalPop { from { transform: translateY(8px) scale(.985); opacity: 0; } to { transform: none; opacity: 1; } }
 .components-modal__content.wpi-auth-content { margin: 0; padding: 36px 36px 28px; }
@@ -496,6 +493,6 @@ body.toplevel_page_wpimage #wpbody-content { padding-bottom: 0; }
   .wpimage-app .wpi-brand-actions .wpi-head-btn.button:hover { background: var(--gray-100); }
 
   /* Roomier modal padding trade for small screens */
-  .components-modal__screen-overlay { padding: 16px !important; }
+  .components-modal__screen-overlay { padding: 12px !important; }
   .components-modal__content.wpi-auth-content { margin: 0 !important; padding: 28px 22px 22px !important; }
 }

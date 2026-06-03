@@ -325,7 +325,7 @@ function DashboardPage({ t, synced, syncing, openLogin, onDisconnect }) {
           </SectionCard>
           <SectionCard title="Monthly quota" icon="cloud"
             style={{ display:'flex', flexDirection:'column', overflow:'hidden' }}
-            bodyStyle={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+            bodyStyle={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'space-between', gap:20 }}>
             {!synced ? (
               <div style={{ height:8, borderRadius:9999, background:'var(--gray-200)' }} />
             ) : (
@@ -501,7 +501,7 @@ function PluginShell() {
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:18, fontWeight:600, letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8 }}>
               WPImage
-              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.10</span>
+              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.11</span>
             </div>
             <div style={{ font:'12px/1.4 var(--font-sans)', color:'var(--fg-muted)', marginTop:1 }}>Image compression for WordPress</div>
           </div>

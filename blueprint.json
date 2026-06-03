@@ -1,0 +1,20 @@
+{
+  "landingPage": "/wp-admin/admin.php?page=wpimage",
+  "steps": [
+    {
+      "step": "login",
+      "username": "admin",
+      "password": "password"
+    },
+    {
+      "step": "installPlugin",
+      "pluginZipFile": {
+        "resource": "url",
+        "url": "https://tommyclaude.github.io/wpimage-preview/wpimage.zip"
+      },
+      "options": {
+        "activate": true
+      }
+    }
+  ]
+}

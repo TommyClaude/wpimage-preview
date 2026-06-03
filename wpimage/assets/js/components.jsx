@@ -168,7 +168,7 @@ function TrendChart({ data, locked }) {
         <div style={{ position:'absolute', ...tip, background:'var(--gray-900)', color:'#fff',
           font:'var(--fw-medium) 12px/1.35 var(--font-sans)', padding:'5px 9px', borderRadius:5,
           whiteSpace:'nowrap', boxShadow:'var(--elevation-medium)', pointerEvents:'none', zIndex:20 }}>
-          <span style={{ opacity:.6 }}>{act.date}{' · '}</span>
+          <span style={{ opacity:.6 }}>{act.today ? 'Today' : act.date}{' · '}</span>
           <strong style={{ fontWeight:600 }}>{act.v.toLocaleString()}</strong> {act.v === 1 ? 'image' : 'images'}
         </div>
       )}

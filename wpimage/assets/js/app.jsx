@@ -276,7 +276,7 @@ function DashboardPage({ t, synced, syncing, openLogin, onDisconnect }) {
       label = d.getMonth() !== trendTickMon ? WPI_MON[d.getMonth()] + ' ' + d.getDate() : String(d.getDate());
       trendTickMon = d.getMonth();
     }
-    return { v, label, date: WPI_MON[d.getMonth()] + ' ' + d.getDate() };
+    return { v, label, date: WPI_MON[d.getMonth()] + ' ' + d.getDate(), today: i === trendVals.length - 1 };
   });
   const trendTotal = trendVals.reduce((a, b) => a + b, 0);
   const quotaTotal = 200, quotaUsed = trendTotal, resetDate = 'Jun 14';
@@ -515,7 +515,7 @@ function PluginShell() {
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ fontSize:18, fontWeight:600, letterSpacing:'-0.01em', display:'flex', alignItems:'center', gap:8 }}>
               WPImage
-              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.19</span>
+              <span style={{ fontSize:12, fontWeight:500, color:'var(--fg-muted)' }}>v2.8.20</span>
             </div>
             <div style={{ font:'12px/1.4 var(--font-sans)', color:'var(--fg-muted)', marginTop:1 }}>Image compression for WordPress</div>
           </div>
